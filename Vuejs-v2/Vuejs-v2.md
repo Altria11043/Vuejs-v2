@@ -157,7 +157,7 @@ E:\Vuejs-v2\Vuejs-v2\01-webpack的使用\webpack的配置>npm install webpack@3.
 
 `"devDependencies"`表示开发时依赖.
 
-### [loader](https://www.webpackjs.com/)
+### [loader预处理](https://www.webpackjs.com/)
 
 #### `webpack`是用来做什么的?
 
@@ -167,7 +167,7 @@ E:\Vuejs-v2\Vuejs-v2\01-webpack的使用\webpack的配置>npm install webpack@3.
 
 对于webpack本身的能力来说, 这些转化是不支持的. 但是给webpack扩展对应的loader就可以了.
 
-#### loader的使用过程
+#### loader预处理css
 
 1. 在main.js中依赖css文件, 没有其他地方使用所以不需要再前面添加变量
 
@@ -175,15 +175,14 @@ E:\Vuejs-v2\Vuejs-v2\01-webpack的使用\webpack的配置>npm install webpack@3.
    require('./css/normal.css')
    ```
 
-2. 通过npm安装需要使用的loader.
+2. 通过npm安装需要使用的loader. 打包不同的依赖需要不同的loader
 
 ```
 npm install --save-dev css-loader
 npm install style-loader --save-dev
-
 ```
 
-3. 在webpack.config.js中的modules关键字下进行配置
+3. 在`webpack.config.js`中的modules关键字下进行配置
 ```json
 module: {
     rules: [
@@ -200,3 +199,105 @@ module: {
 `style-loader`负责将样式添加到DOM中
 
 使用多个loader时, 是从右向左读, 如果在`use: []`中将顺序反过来会在打包时报错
+
+#### loader预处理less
+
+在项目中安装`less-loader`
+
+```
+npm install --save-dev less-loader less
+```
+
+在`webpack.config.js`中添加配置
+
+```javascript
+// webpack.config.js
+module.exports = {
+    ...
+    module: {
+        rules: [{
+            test: /\.less$/,
+            use: [{
+                loader: "style-loader" // creates style nodes from JS strings
+            }, {
+                loader: "css-loader" // translates CSS into CommonJS
+            }, {
+                loader: "less-loader" // compiles Less to CSS
+            }]
+        }]
+    }
+};
+```
+
+#### loader预处理url
+
+加载文件需要两个loader, url-loader和file-loader
+
+```
+npm install --save-dev url-loader
+npm install --save-dev file-loader
+```
+
+`webpack.config.js`添加配置
+
+```javascript
+module.exports = {
+  output: {
+    publicPath: 'dist/'
+  },
+  module: {
+    rules: [
+      {
+        test: /\.(png|jpg|gif)$/,
+        use: [
+          {
+            loader: 'url-loader',
+            options: {
+              limit: 8192,
+              name: '[name][hash:8].[ext]'
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+在`webpack.config.js`中的`options: { limit: 8192 }`的属性, limit表示图片大小(8192b共8k)
+
+如果加载的图片大于8k则需要使用`file-loader`, 如果小于则将该图片转成beas64格式的文件进行展示. 
+
+如果图片大于指定大小, 这会将这个图片打包进指定的打包文件, 到时候程序是无法正常找到打包后的图片的, 需要在`module.exports={ output: {  } }`中添加`publicPath: 'dist/'`属性, 以后url相关的文件系统都会在这个指定的文件夹下查找.
+
+在把文件打包之后, 图片也会跟着被打包, 但是图片的名字会被重新用hash32码命名. 可以使用`name: '[name][hash:8].[ext]'`对命名进行规范操作.
+
+#### loader预处理ES6
+
+```
+npm install --save-dev babel-loader@7 babel-core babel-preset-es2015
+```
+
+这里加载加载的是与本项目更贴近的一个配置, 新的版本需要去官网查找
+
+```javascript
+module: {
+  rules: [
+    {
+      test: /\.js$/,
+      exclude: /(node_modules|bower_components)/,
+      use: {
+        loader: 'babel-loader',
+        options: {
+          presets: ['es2015']
+        }
+      }
+    }
+  ]
+}
+```
+
+`exclude: /(node_modules|bower_components)/,`exclude表示排除里面指定的文件夹
+
+运行之后打包后的`.js`文件将没有ES6的语法规范, 会全部转化成ES5的
+
