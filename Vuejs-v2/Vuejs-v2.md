@@ -159,7 +159,7 @@ E:\Vuejs-v2\Vuejs-v2\01-webpack的使用\webpack的配置>npm install webpack@3.
 
 ### [loader](https://www.webpackjs.com/)
 
-**`webpack`是用来做什么的?**
+#### `webpack`是用来做什么的?
 
 在上面的案例中, webpack主要是用来处理js代码的, 并且webpack会自动处理js之间相关的依赖.
 
@@ -167,8 +167,36 @@ E:\Vuejs-v2\Vuejs-v2\01-webpack的使用\webpack的配置>npm install webpack@3.
 
 对于webpack本身的能力来说, 这些转化是不支持的. 但是给webpack扩展对应的loader就可以了.
 
-**loader的使用过程**
+#### loader的使用过程
 
-1. 通过npm安装需要使用的loader.
-2. 在webpack.config.js中的modules关键字下进行配置
+1. 在main.js中依赖css文件, 没有其他地方使用所以不需要再前面添加变量
 
+   ```javascript
+   require('./css/normal.css')
+   ```
+
+2. 通过npm安装需要使用的loader.
+
+```
+npm install --save-dev css-loader
+npm install style-loader --save-dev
+
+```
+
+3. 在webpack.config.js中的modules关键字下进行配置
+```json
+module: {
+    rules: [
+      {
+        test: /\.css$/,
+        use: [ 'style-loader','css-loader' ]
+      }
+    ]
+  }
+```
+
+`css-loader`只负责将css文件进行加载, 不负责解析, 所以在安装了`css-loader`之后还需要安装`style-loader`
+
+`style-loader`负责将样式添加到DOM中
+
+使用多个loader时, 是从右向左读, 如果在`use: []`中将顺序反过来会在打包时报错
