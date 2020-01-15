@@ -1,12 +1,14 @@
 const path = require('path')
+const webpack = require('webpack')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+const UglifyjsWebpackPlugin = require('uglifyjs-webpack-plugin')
 
 module.exports = {
   entry: './src/main.js',
   output: {
     // __dirname可以获取到当前路径, 然后拼接dist
     path: path.resolve(__dirname, 'dist'),
-    filename: 'bundle.js',
-    publicPath: 'dist/'
+    filename: 'bundle.js'
   },
   module: {
     rules: [
@@ -34,7 +36,7 @@ module.exports = {
             loader: 'url-loader',
             options: {
               limit: 20000,
-              name: '[name][hash].[ext]'
+              name: 'img/[name][hash].[ext]'
             }
           }
         ]
@@ -60,5 +62,12 @@ module.exports = {
     alias: {
       'vue$': 'vue/dist/vue.esm.js'
     }
-  }
+  },
+  plugins: [
+    // new webpack.BannerPlugin('该版本为学习用, 仅供参考'),
+    new HtmlWebpackPlugin({
+      template: 'index.html'
+    }),
+    new UglifyjsWebpackPlugin()
+  ]
 }

@@ -254,7 +254,7 @@ module.exports = {
             loader: 'url-loader',
             options: {
               limit: 8192,
-              name: '[name][hash:8].[ext]'
+              name: 'img/[name][hash].[ext]'
             }
           }
         ]
@@ -351,3 +351,247 @@ module.exports = {
 
 #### el和template
 
+在`new Vue()`中`el`用于指定对应的div标签, 然后vue会将template中的代码覆盖上去
+
+```html
+<div id="app">
+  <h2>测试是否会覆盖</h2>
+</div>
+```
+
+![el与template1](./img/el与template1.jpg)
+
+#### 将vue组件分离到`.js文件`中
+
+App.js
+
+```javascript
+export default {
+  template: `
+  <div>
+    <h2>{{msg}}</h2>
+    <button @click="btnclick">按钮</button>
+    <h2>{{name}}</h2>
+  </div>
+  `,
+  data() {
+    return{
+      msg: '你好',
+      name: 'Zhou'
+    }
+  },
+  methods: {
+    btnclick() {
+      console.log('btnclick');
+    }
+  }
+}
+```
+
+main.js进行依赖
+
+```javascript
+// 使用vue进行开发
+import Vue from 'vue'
+import App from './vue/App'
+new Vue({
+  el: '#app',
+  template: '<App/>',
+  components: {
+    App
+  }
+})
+```
+
+#### 将vue组件分离到`.vue文件`中
+
+App.vue
+
+```vue
+<template>
+  <div>
+    <h2 class="title">{{msg}}</h2>
+    <button @click="btnclick">按钮</button>
+    <h2>{{name}}</h2>
+  </div>
+</template>
+<script>
+  export default {
+    name: "App",
+    data() {
+      return{
+        msg: '你好',
+        name: 'Zhou'
+      }
+    },
+    methods: {
+      btnclick() {
+        console.log('btnclick');
+      }
+    }
+  }
+</script>
+<style scoped>
+  .title{
+    color: green;
+  }
+</style>
+```
+
+main.js进行依赖
+
+```javascript
+// 使用vue进行开发
+import Vue from 'vue'
+import App from './vue/App'
+
+new Vue({
+  el: '#app',
+  template: '<App/>',
+  components: {
+    App
+  }
+})
+```
+
+但是光这样vue还是无法运行. 需要`vue-loader`和`vue-template-compiler`
+
+```
+npm install vue-loader vue-template-compiler -save-dev
+```
+
+vue-loader: 用于加载vue文件
+
+vue-template-compiler: 将vue进行编译
+
+安装之后在webpack.config.js中进行配置
+
+```javascript
+module: {
+  rules: [
+    {
+      test: /\.vue$/,
+      use: ['vue-loader']
+    }
+  ]
+}
+```
+
+但是这样还是会报错, 原因是版本不兼容造成的需要将版本降低, 
+
+在package.json中把`"vue-loader": "^15.8.3"`改成`"vue-loader": "^13.0.0"`
+
+![vue配置1](./img/vue配置1.jpg)
+
+##### 插入子组件
+
+Cpn.vue
+
+```vue
+<template>
+  <div>
+    <h2>子组件标题</h2>
+    <p>子组件内容</p>
+    <p>{{name}}</p>
+  </div>
+</template>
+<script>
+  export default {
+    name: "Cpn",
+    data() {
+      return {
+        name: 'Altria'
+      }
+    }
+  }
+</script>
+<style scoped>
+</style>
+```
+
+App.vue
+
+```vue
+<template>
+  <div>
+    <h2 class="title">{{msg}}</h2>
+    <button @click="btnclick">按钮</button>
+    <h2>{{name}}</h2>
+    <Cpn></Cpn>
+  </div>
+</template>
+<script>
+  // 引入子组件
+  import Cpn from './Cpn.vue'
+  export default {
+    name: "App",
+    data() {
+      return{
+        msg: '你好',
+        name: 'Zhou'
+      }
+    },
+    methods: {
+      btnclick() {
+        console.log('btnclick');
+      }
+    },
+    components: {
+      Cpn
+    }
+  }
+</script>
+```
+
+可以正常使用
+
+### plugin(插件)
+
+#### 打包html的plugin
+
+目前, 我们的index.html是存放在项目的根目录下的, 而我们真实发布项目时, 只会发布dist文件夹中的内容 , 但是dist文件夹中没有index.html, 那么打包js等文件就没有意义了.
+
+所以需要HtmlWebpackPlugin插件来为我们做这些事.
+
+##### HtmlWebpackPlugin
+
+自动生成一个index.html文件(可以指定生成模板)
+
+将打包的js文件自动通过script标签插入到body中
+
+**安装**
+
+```
+npm install html-webpack-plugin --save-dev
+```
+
+对webpack.config.js进行配置
+
+```javascript
+  plugins: [
+    new HtmlWebpackPlugin({
+      template: 'index.html'
+    })
+  ]
+```
+
+如果不填写`template: 'index.html'`则会生成默认的index.html
+
+#### js的压缩
+
+为了与当前项目版本相对应这里选用了1.1.1版本
+
+```
+npm install uglifyjs-webpack-plugin@1.1.1 -save-dev
+```
+
+在webpack.config.js中进行配置
+
+```javascript
+  const UglifyjsWebpackPlugin = require('uglifyjs-webpack-plugin')
+  plugins: [
+    new UglifyjsWebpackPlugin()
+  ]
+```
+
+因为这里进行了压缩, 注释什么的也没有了, 所以版权声明什么的可以去掉了
