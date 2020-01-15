@@ -198,7 +198,7 @@ module: {
 
 `style-loader`负责将样式添加到DOM中
 
-使用多个loader时, 是从右向左读, 如果在`use: []`中将顺序反过来会在打包时报错
+使用多个loader时, 是从右向左读, 如果在`use: []`中将顺序反过来会在打包时报错
 
 #### loader预处理less
 
@@ -300,4 +300,54 @@ module: {
 `exclude: /(node_modules|bower_components)/,`exclude表示排除里面指定的文件夹
 
 运行之后打包后的`.js`文件将没有ES6的语法规范, 会全部转化成ES5的
+
+### webpack配置vue
+
+安装vue
+
+```
+npm install vue --save
+```
+
+引入vue
+
+```javascript
+// 使用vue进行开发
+import Vue from 'vue'
+const app = new Vue({
+  el: '#app',
+  data: {
+    message: '你好'
+  }
+})
+```
+
+```html
+<div id="app">
+  <h2>{{message}}</h2>
+</div>
+```
+
+在配置完这些之后还是不能直接使用会报错
+
+```
+bundle.js:1310 [Vue warn]: You are using the runtime-only build of Vue where the template compiler is not available. Either pre-compile the templates into render functions, or use the compiler-included build.
+```
+
+这个报错的解决方法是在`webpack.config.js`中添加一个配置
+
+```json
+module.exports = {
+  resolve: {
+    // 别名
+    alias: {
+      'vue$': 'vue/dist/vue.esm.js'
+    }
+  }
+}
+```
+
+在指定了这个文件之后然后重新打包, 就可以正常使用了
+
+#### el和template
 
