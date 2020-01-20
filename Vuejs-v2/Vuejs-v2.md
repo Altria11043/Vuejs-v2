@@ -595,3 +595,75 @@ npm install uglifyjs-webpack-plugin@1.1.1 -save-dev
 ```
 
 因为这里进行了压缩, 注释什么的也没有了, 所以版权声明什么的可以去掉了
+
+#### webpack-dev-server热更新
+
+webpack提供了一个可选的本地开发服务器, 可以实现我们想要的让浏览器自动刷新显示我们修改过的结果
+
+**安装**
+
+```
+npm install --save-dev webpack-dev-server@2.9.1
+```
+
+**修改webpack.config.js文件**
+
+```javascript
+module.exports = {
+  dveServer: {
+    contentBase: './dist',
+    inline: true
+  }
+}
+```
+
+**修改package.json文件**
+
+在scripts中添加
+
+```json
+  "scripts": {
+    "dev": "webpack-dev-server --open"
+  },
+```
+
+在局部中运行并打开
+
+# Vue CLI的使用
+
+## Vue CLI安装
+
+安装vue脚手架
+
+```
+npm install -g @vue/cli
+```
+
+上面安装的是当前的最新版本, 如果想要按照Vue CLI2的方式初始化项目是不可能的
+
+拉去2.x模板
+
+```
+npm install -g @vue/cli-init
+```
+
+Vue CLI2初始化项目
+
+```
+vue init webpack my-project
+```
+
+Vue CLI3初始化项目
+
+```
+vue create my-project
+```
+
+### 开始安装
+
+```
+vue init webpack vuecli2
+```
+
+![vuecli2安装过程](./img/vuecli2安装过程.png)
+

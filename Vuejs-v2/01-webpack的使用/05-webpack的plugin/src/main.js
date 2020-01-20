@@ -28,3 +28,5 @@ new Vue({
     App
   }
 })
+
+document.writeln('<button>点击按钮</button>')
